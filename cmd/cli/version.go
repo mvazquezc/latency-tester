@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	short bool
+	full bool
 )
 
 func NewVersionCommand() *cobra.Command {
@@ -15,7 +15,7 @@ func NewVersionCommand() *cobra.Command {
 		Use:   "version",
 		Short: "Display version information",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !short {
+			if full {
 				fmt.Printf("Build time: %s\n", commands.GetBuildTime())
 				fmt.Printf("Git commit: %s\n", commands.GetGitCommit())
 				fmt.Printf("Go commands: %s\n", commands.GetGoVersion())
@@ -34,5 +34,5 @@ func NewVersionCommand() *cobra.Command {
 
 func addVersionFlags(cmd *cobra.Command) {
 	flags := cmd.Flags()
-	flags.BoolVar(&short, "short", false, "show only the version number")
+	flags.BoolVarP(&full, "full", "f", false, "Shows full version information")
 }

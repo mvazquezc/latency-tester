@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func RunLatencyTestCmd(target string, numberOfRuns int, waitIntervalSeconds int) (latency.AggregatedLatencyTestOutput, error) {
+func RunLatencyTestCmd(target string, numberOfRuns int, waitIntervalSeconds int, tcpPing bool) (latency.AggregatedLatencyTestOutput, error) {
 
 	var (
 		dnsLookup        int
@@ -19,12 +19,13 @@ func RunLatencyTestCmd(target string, numberOfRuns int, waitIntervalSeconds int)
 		total            int
 		lt               latency.LatencyTest
 	)
-	fmt.Printf("Run command executed with targetUrl: %s, numberOfRuns: %d, waitInternvalSeconds: %d.\n", target, numberOfRuns, waitIntervalSeconds)
+	fmt.Printf("Run command executed with target: %s, numberOfRuns: %d, waitInternvalSeconds: %d, tcpPing: %v.\n", target, numberOfRuns, waitIntervalSeconds, tcpPing)
 	scheme := utils.GetScheme(target)
 
 	if scheme == "tcp" {
 		lt = latency.LatencyTCPTest{
-			Socket: target,
+			Socket:      target,
+			SendTCPPing: tcpPing,
 		}
 	} else {
 		lt = latency.LatencyHTTPTest{

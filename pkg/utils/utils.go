@@ -51,15 +51,15 @@ func GetScheme(inputTarget string) string {
 	return "http"
 }
 
-func ValidateTarget(inputTarget string) bool {
+func ValidateTarget(inputTarget string) (bool, string) {
 	u, err := url.Parse(inputTarget)
 	if err != nil {
-		return false
+		return false, ""
 	}
 	if (u.Scheme == "http" || u.Scheme == "https" || u.Scheme == "tcp") && u.Host != "" {
-		return true
+		return true, u.Scheme
 	}
-	return false
+	return false, ""
 	//return err == nil && u.Scheme != "" && u.Host != ""
 }
 

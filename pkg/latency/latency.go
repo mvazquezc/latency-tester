@@ -44,7 +44,7 @@ func (lt LatencyHTTPTest) Run() (LatencyTestOutput, error) {
 	end := time.Now()
 	result.End(end)
 	// Close connections
-	client.CloseIdleConnections()
+	defer client.CloseIdleConnections()
 	// Prepare result
 	lto.DnsLookup = int(result.DNSLookup / time.Millisecond)
 	lto.TcpConn = int(result.TCPConnection / time.Millisecond)
@@ -57,13 +57,17 @@ func (lt LatencyHTTPTest) Run() (LatencyTestOutput, error) {
 
 // Implements the Run method for TCP latency tests
 func (lt LatencyTCPTest) Run() (LatencyTestOutput, error) {
-	u, _ := url.Parse(lt.Socket)
 	lto := LatencyTestOutput{}
+	u, err := url.Parse(lt.Socket)
+	if err != nil {
+		return lto, err
+	}
+
 	timeout := 5 * time.Second
 
 	startDNS := time.Now()
 
-	_, err := net.LookupHost(u.Hostname())
+	_, err = net.LookupHost(u.Hostname())
 	if err != nil {
 		return lto, err
 	}
@@ -74,8 +78,25 @@ func (lt LatencyTCPTest) Run() (LatencyTestOutput, error) {
 	if err != nil {
 		return lto, err
 	}
+	defer conn.Close()
+
+	if lt.SendTCPPing {
+
+		strEcho := "PING\n"
+		_, err = conn.Write([]byte(strEcho))
+		if err != nil {
+			return lto, err
+		}
+
+		conn.SetReadDeadline(time.Now().Add(timeout))
+		reply := make([]byte, 1024)
+		_, err = conn.Read(reply)
+		if err != nil {
+			return lto, err
+		}
+	}
+
 	elapsedTCP := int(time.Since(startTCP) / time.Millisecond)
-	conn.Close()
 
 	lto.DnsLookup = elapsedDNS
 	lto.TcpConn = elapsedTCP

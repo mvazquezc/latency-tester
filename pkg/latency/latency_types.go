@@ -27,5 +27,6 @@ type LatencyHTTPTest struct {
 }
 
 type LatencyTCPTest struct {
-	Socket string
+	Socket      string
+	SendTCPPing bool
 }
