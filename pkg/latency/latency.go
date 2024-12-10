@@ -50,7 +50,7 @@ func (lt LatencyHTTPTest) Run() (LatencyTestOutput, error) {
 	lto.TcpConn = int(result.TCPConnection / time.Millisecond)
 	lto.TlsHandshake = int(result.TLSHandshake / time.Millisecond)
 	lto.ServerProcessing = int(result.ServerProcessing / time.Millisecond)
-	lto.ContentTransfer = int(result.StartTransfer / time.Millisecond)
+	lto.ContentTransfer = int(result.ContentTransfer(end) / time.Millisecond)
 	lto.Total = int(result.Total(end) / time.Millisecond)
 	return lto, nil
 }
